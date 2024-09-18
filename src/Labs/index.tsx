@@ -4,9 +4,13 @@ import Lab1 from "./Lab1";
 import Lab2 from "./Lab2";
 import Lab3 from "./Lab3";
 export default function Labs() {
+  const githubUrl = "https://github.com/ZhangShaoj-NEU/kanbas-react-web-app.git";
+
   return (
     <div>
       <h1>Shaojie Zhang</h1>
+      <p>GitHub URL: <a href={githubUrl} target="_blank" rel="noopener noreferrer">{githubUrl}</a></p>
+
       <h1>Labs</h1>
       {/* 显示目录 */}
       <TOC />
