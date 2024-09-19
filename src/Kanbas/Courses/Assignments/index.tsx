@@ -12,7 +12,7 @@ export default function Assignments() {
       <h3 id="wd-assignments-title">
         ASSIGNMENTS 40% of Total <button>+</button>
       </h3>
-      <ul id="wd-assignment-list">
+      <ul id="wd-assignment-list" style={{ width: '100%' }}>
         <li className="wd-assignment-list-item">
           <Link className="wd-assignment-link" to={`/Kanbas/Courses/${courseId}/Assignments/123`}>
             A1 - ENV + HTML
