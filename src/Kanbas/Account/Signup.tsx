@@ -1,21 +1,31 @@
-import React from "react";
 import { Link } from "react-router-dom";
+
 export default function Signup() {
-  return (
-    <div id="wd-signup-screen" className="flex-grow-1">
-      <h3>Signup</h3>
-      <div className="mb-3">
-        <input type="text" className="form-control" placeholder="username" />
-      </div>
-      <div className="mb-3">
-        <input type="password" className="form-control" placeholder="password" />
-      </div>
-      <div className="mb-3">
-        <input type="password" className="form-control" placeholder="verify password" />
-      </div>
-      <div className="mb-3">
-        <Link to="/Kanbas/Account/Profile" className="btn btn-primary w-100">Signup</Link>
-      </div>
-      <Link to="/Kanbas/Account/Signin" className="text-primary">Signin</Link>
-    </div>
-);}
+    return (
+        <div id="signup-container" className="ms-4">
+            <h1>Sign up</h1>
+            <input
+                id="username-input"
+                placeholder="Username"
+                className="form-control mb-2"
+            />
+            <input
+                id="password-input"
+                placeholder="Password"
+                type="password"
+                className="form-control mb-2"
+            />
+            <Link
+                id="signup-button"
+                to="/Kanbas/Account/Profile"
+                className="btn btn-primary w-100"
+            >
+                Sign up
+            </Link>
+            <br />
+            <Link id="signin-link" to="/Kanbas/Account/Signin">
+                Already have an account? Sign in
+            </Link>
+        </div>
+    );
+}

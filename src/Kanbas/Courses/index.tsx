@@ -1,16 +1,15 @@
-import React from 'react';
-import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
-import TOC from "./TOC";
-import Home from './Home';
-import Modules from './Modules';
-import Assignments from './Assignments';
+import { Routes, Route, useParams, useLocation } from "react-router";
+import CoursesNavigation from "./TOC";
+import Modules from "./Modules";
+import Home from "./Home";
+import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
-import PeopleTable from './People/Table';
-import { FaAlignJustify } from 'react-icons/fa';
-import { courses } from "../Database";
+import { FaAlignJustify } from "react-icons/fa";
+import PeopleTable from "./People/Table";
 
-function Courses() {
-  const { cid } = useParams();
+
+export default function Courses({ courses }: { courses: any[]; }) {
+    const { cid } = useParams();
     const { pathname } = useLocation();
     const course = courses.find(
         (course) => course._id === cid
@@ -24,7 +23,7 @@ function Courses() {
             </h2> <hr />
             <div className="d-flex">
                 <div className="d-none d-md-block">
-                    <TOC />
+                    <CoursesNavigation />
                 </div>
                 <div className="flex-fill">
                     <Routes>
@@ -40,5 +39,3 @@ function Courses() {
 
     );
 }
-
-export default Courses;
