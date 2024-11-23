@@ -1,190 +1,326 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { FaChevronDown } from "react-icons/fa";
+import { FaCalendar } from "react-icons/fa";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer";
+import * as coursesClient from "../client";
+import * as assignmentsClient from "./client";
 
 export default function AssignmentEditor() {
-    const { cid, aid } = useParams();
-    const assignments = useSelector((state: any) => state.assignmentReducer.assignments);
-    const currentAssignment = assignments.find(
-        (assignment: any) => assignment._id === aid
-    );
+  const { aid, cid } = useParams();
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const assignment = assignments.find((a: any) => a._id === aid);
+  const [points, setPoints] = useState(assignment?.points || 100);
+  const [name, setName] = useState(assignment?.title || "");
+  const [description, setDescription] = useState(assignment?.description || "");
+  const [due, setDue] = useState(
+    assignment?.due ? new Date(assignment.due) : new Date()
+  );
+  const [availableFrom, setAvailableFrom] = useState(
+    assignment?.availableFrom ? new Date(assignment.availableFrom) : new Date()
+  );
+  const [availableUntil, setAvailableUntil] = useState(
+    assignment?.availableUntil
+      ? new Date(assignment.availableUntil)
+      : new Date()
+  );
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
-    const [assignmentId, setAssignmentId] = useState(currentAssignment?._id || "");
-    const [title, setTitle] = useState(currentAssignment?.title || "");
-    const [description, setDescription] = useState(
-        currentAssignment?.description ||
-        `The assignment is available online.\n\nSubmit a link to the landing page of your Web application running on Netlify.\n\nThe landing page should include:\n- Your full name and section\n- Links to each of the lab assignments\n- Link to the Kanbas application\n- Links to all relevant source code repositories\n\nThe Kanbas application should include a link to navigate back to the landing page.`
-    );
-    const [points, setPoints] = useState(currentAssignment?.points || "");
-    const [availableFrom, setAvailableFrom] = useState(currentAssignment?.from || "2024-05-01");
-    const [availableTo, setAvailableTo] = useState(currentAssignment?.to || "2024-05-15");
-    const [dueDate, setDueDate] = useState(currentAssignment?.due || "2024-05-16");
-
-    const handleSaveOrUpdate = () => {
-        const assignmentData = {
-            _id: assignmentId || "",
-            title,
-            course: cid,
-            description,
-            points,
-            from: availableFrom,
-            to: availableTo,
-            due: dueDate
-        };
-
-        if (currentAssignment) {
-            dispatch(updateAssignment(assignmentData));
-        } else {
-            dispatch(addAssignment(assignmentData));
-        }
-
-        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+  const createAssignmentForCourse = async () => {
+    if (!cid) return;
+    const newAssignment = {
+      title: name,
+      description,
+      points,
+      due: due.toISOString(),
+      availableFrom: availableFrom.toISOString(),
+      availableUntil: availableUntil.toISOString(),
+      course: cid,
+      _id: aid,
     };
-
-    return (
-        <div className="container">
-            <div id="assignment-editor-container">
-                <label htmlFor="assignment-name">Assignment Name</label><br />
-                <input
-                    id="assignment-name"
-                    value={title}
-                    className="form-control"
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Assignment Name"
-                />
-                <br />
-
-                <label htmlFor="assignment-id">Assignment ID</label><br />
-                <input
-                    id="assignment-id"
-                    value={assignmentId}
-                    className="form-control"
-                    onChange={(e) => setAssignmentId(e.target.value)}
-                    placeholder="Assignment ID"
-                />
-                <br />
-
-                <textarea
-                    id="assignment-description"
-                    value={description}
-                    className="form-control"
-                    style={{ width: "100%", height: "300px" }}
-                    onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-
-                <div className="mt-4">
-                    <div className="row">
-                        <div className="col-md-2 col-12">
-                            <label htmlFor="assignment-points" className="form-label">Points</label>
-                        </div>
-                        <div className="col-md-10 col-12 d-flex align-items-center position-relative">
-                            <input
-                                id="assignment-points"
-                                value={points}
-                                className="form-control"
-                                onChange={(e) => setPoints(e.target.value)}
-                                placeholder="Points"
-                            />
-                            <FaChevronDown className="position-absolute" style={{ right: '30px' }} />
-                        </div>
-                    </div>
-
-                    <div className="row mt-3">
-                        <div className="col-md-2 col-12">
-                            <label htmlFor="assignment-group" className="form-label">Assignment Group</label>
-                        </div>
-                        <div className="col-md-10 col-12 d-flex align-items-center position-relative">
-                            <select id="assignment-group" className="form-control w-100">
-                                <option value="ASSIGNMENTS" selected>ASSIGNMENTS</option>
-                                <option value="QUIZZES">QUIZZES</option>
-                            </select>
-                            <FaChevronDown className="position-absolute" style={{ right: '30px' }} />
-                        </div>
-                    </div>
-
-                    <div className="row mt-3">
-                        <div className="col-md-2 col-12">
-                            <label htmlFor="grade-display" className="form-label">Display Grade as</label>
-                        </div>
-                        <div className="col-md-10 col-12 d-flex align-items-center position-relative">
-                            <select id="grade-display" className="form-control">
-                                <option value="PERCENTAGE" selected>Percentage</option>
-                                <option value="NUMBERS">Numbers</option>
-                            </select>
-                            <FaChevronDown className="position-absolute" style={{ right: '30px' }} />
-                        </div>
-                    </div>
-
-                    <div className="row mt-3">
-                        <div className="col-md-2 col-12">
-                            <label htmlFor="submission-type" className="form-label">Submission Type</label>
-                        </div>
-                        <div className="col-md-10 col-12">
-                            <select id="submission-type" className="form-control">
-                                <option value="ONLINE" selected>Online</option>
-                                <option value="INPERSON">In Person</option>
-                            </select>
-                            <FaChevronDown className="position-absolute" style={{ right: '18px', top: '50%', transform: 'translateY(-50%)' }} />
-                        </div>
-                    </div>
-
-                    <div className="row mt-3">
-                        <div className="col-md-2 col-12">
-                            <label htmlFor="assignment-availability" className="form-label">Assign To</label>
-                        </div>
-                        <div className="col-md-10 col-12 p-3 border rounded">
-                            <div className="col-md-6 mb-3">
-                                <label htmlFor="due-date"><b>Due</b></label>
-                                <input
-                                    id="due-date"
-                                    value={dueDate}
-                                    type="date"
-                                    className="form-control"
-                                    onChange={(e) => setDueDate(e.target.value)}
-                                />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                                <label htmlFor="available-from"><b>Available from</b></label>
-                                <input
-                                    id="available-from"
-                                    value={availableFrom}
-                                    type="date"
-                                    className="form-control"
-                                    onChange={(e) => setAvailableFrom(e.target.value)}
-                                />
-                            </div>
-                            <div className="col-md-6 mb-3">
-                                <label htmlFor="available-to"><b>Until</b></label>
-                                <input
-                                    id="available-to"
-                                    value={availableTo}
-                                    type="date"
-                                    className="form-control"
-                                    onChange={(e) => setAvailableTo(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <hr />
-                <button
-                    className="btn btn-md btn-secondary me-1 float-end"
-                    onClick={handleSaveOrUpdate}
-                >
-                    Save
-                </button>
-                <Link
-                    to={`/Kanbas/Courses/${cid}/Assignments`}
-                    className="btn btn-md btn-danger me-1 float-end"
-                >
-                    Cancel
-                </Link>
-            </div>
-        </div>
+    const assignment = await coursesClient.createAssignmentForCourse(
+      cid,
+      newAssignment
     );
+    dispatch(addAssignment(assignment));
+  };
+
+  const saveAssignment = async (assignment: any) => {
+    if (!cid) return;
+    await assignmentsClient.updateAssignment(assignment);
+    dispatch(updateAssignment(assignment));
+  };
+
+  const handleSave = () => {
+    const updatedAssignment = assignment
+      ? {
+          ...assignment,
+          points,
+          title: name,
+          description,
+          due: due.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+          availableFrom: availableFrom.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+          availableUntil: availableUntil.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+          course: cid,
+        }
+      : null;
+
+    if (updatedAssignment) saveAssignment(updatedAssignment);
+    else createAssignmentForCourse();
+
+    navigate(`/Kanbas/Courses/${cid}/Assignments`);
+  };
+
+  return (
+    <div id="wd-assignments-editor">
+      <form>
+        <div className="row mb-3">
+          <label htmlFor="wd-name" className="col-sm-2 col-form-label">
+            Assignment Name
+          </label>
+          <input
+            id="wd-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="form-control"
+          />
+        </div>
+        <div className="row mb-3">
+          <textarea
+            id="wd-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="form-control"
+            rows={10}
+          />
+        </div>
+        <div className="row mb-3 col-sm-12 float-end">
+          <label
+            htmlFor="wd-points"
+            className="col-sm-2 col-form-label d-flex justify-content-end"
+          >
+            Points
+          </label>
+          <div className="col-sm-10">
+            <input
+              id="wd-points"
+              value={points}
+              type="number"
+              onChange={(e) => setPoints(parseInt(e.target.value))}
+              className="form-control"
+            />
+          </div>
+        </div>
+        <div className="row mb-3 col-sm-12 float-end">
+          <label
+            htmlFor="wd-group"
+            className="col-sm-2 col-form-label d-flex justify-content-end"
+          >
+            Assignment Group
+          </label>
+          <div className="col-sm-10">
+            <select id="wd-group" className="form-select">
+              <option value="assignments">ASSIGNMENTS</option>
+            </select>
+          </div>
+        </div>
+        <div className="row mb-3 col-sm-12 float-end">
+          <label
+            htmlFor="wd-display-grade-as"
+            className="col-sm-2 col-form-label d-flex justify-content-end"
+          >
+            Display Grade as
+          </label>
+          <div className="col-sm-10">
+            <select id="wd-display-grade-as" className="form-select">
+              <option value="percentage">Percentage</option>
+              <option value="complete">Complete</option>
+              <option value="points">Points</option>
+            </select>
+          </div>
+        </div>
+        <div className="row mb-3 col-sm-12 float-end">
+          <label
+            htmlFor="wd-submission-type"
+            className="col-sm-2 col-form-label d-flex justify-content-end"
+          >
+            Submission Type
+          </label>
+          <div className="col-sm-10">
+            <div className="border border-1 rounded-2 p-3">
+              <select id="wd-submission-type" className="form-select">
+                <option value="online">Online</option>
+                <option value="paper">Paper</option>
+              </select>
+              <div className="mt-3">
+                <label htmlFor="wd-text-entry" className="mb-3">
+                  <b>Online Entry Options</b>
+                </label>
+                <div className="form-check mb-3">
+                  <input
+                    type="checkbox"
+                    id="wd-text-entry"
+                    className="form-check-input"
+                  />
+                  <label htmlFor="wd-text-entry" className="form-check-label">
+                    Text Entry
+                  </label>
+                </div>
+                <div className="form-check mb-3">
+                  <input
+                    type="checkbox"
+                    id="wd-website-url"
+                    className="form-check-input"
+                  />
+                  <label htmlFor="wd-website-url">Website URL</label>
+                </div>
+                <div className="form-check mb-3">
+                  <input
+                    type="checkbox"
+                    id="wd-media-recordings"
+                    className="form-check-input"
+                  />
+                  <label htmlFor="wd-media-recordings">
+                    Media Recordings
+                  </label>
+                </div>
+                <div className="form-check mb-3">
+                  <input
+                    type="checkbox"
+                    id="wd-student-annotation"
+                    className="form-check-input"
+                  />
+                  <label htmlFor="wd-student-annotation">
+                    Student Annotation
+                  </label>
+                </div>
+                <div className="form-check mb-3">
+                  <input
+                    type="checkbox"
+                    id="wd-file-upload"
+                    className="form-check-input"
+                  />
+                  <label htmlFor="wd-file-upload">File Uploads</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="row mb-3 col-sm-12 float-end">
+          <label
+            htmlFor="wd-assign"
+            className="col-sm-2 col-form-label d-flex justify-content-end"
+          >
+            Assign
+          </label>
+          <div className="col-sm-10">
+            <div className="border border-1 rounded-2 p-3">
+              <div>
+                <label htmlFor="wd-assign-to" className="form-label">
+                  <b>Assign to</b>
+                </label>
+                <input type="text" value="Everyone" className="form-control" />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="wd-due" className="form-label">
+                  <b>Due</b>
+                </label>
+                <div className="input-group">
+                  <input
+                    type="datetime-local"
+                    id="wd-due"
+                    value={due.toISOString().slice(0, 16)}
+                    onChange={(e) => setDue(new Date(e.target.value))}
+                    className="form-control"
+                  />
+                  <span className="input-group-text">
+                    <FaCalendar />
+                  </span>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-sm-6">
+                  <label htmlFor="wd-available-from" className="form-label">
+                    <b>Available From</b>
+                  </label>
+                  <div className="input-group">
+                    <input
+                      type="datetime-local"
+                      id="wd-available-from"
+                      value={availableFrom.toISOString().slice(0, 16)}
+                      onChange={(e) => setAvailableFrom(new Date(e.target.value))}
+                      className="form-control"
+                    />
+                    <span className="input-group-text">
+                      <FaCalendar />
+                    </span>
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <label htmlFor="wd-available-until" className="form-label">
+                    <b>Until</b>
+                  </label>
+                  <div className="input-group">
+                    <input
+                      type="datetime-local"
+                      id="wd-available-until"
+                      value={availableUntil.toISOString().slice(0, 16)}
+                      onChange={(e) =>
+                        setAvailableUntil(new Date(e.target.value))
+                      }
+                      className="form-control"
+                    />
+                    <span className="input-group-text">
+                      <FaCalendar />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr className="mt-5" />
+        <div className="row float-end">
+          <div className="d-flex justify-item-end gap-2">
+            <Link
+              to={`/Kanbas/Courses/${cid}/Assignments`}
+              id="wd-cancel"
+              className="btn btn-lg btn-secondary border border-1 border-dark"
+            >
+              Cancel
+            </Link>
+            <button
+              onClick={handleSave}
+              id="wd-save"
+              className="btn btn-lg btn-danger"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
 }
