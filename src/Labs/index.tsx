@@ -9,12 +9,16 @@ import store from "./store";
 import { Provider } from "react-redux";
 export default function Labs() {
   const githubUrl = "https://github.com/ZhangShaoj-NEU/kanbas-react-web-app.git";
+  const githubServerUrl = "https://github.com/ZhangShaoj-NEU/kanbas-node-server-app.git";
+  const serverUrl = "https://kanbas-node-server-app-37qn.onrender.com/";
 
   return (
     <Provider store={store}>
       <div>
         <h1>Shaojie Zhang</h1>
         <p>GitHub URL: <a href={githubUrl} target="_blank" rel="noopener noreferrer">{githubUrl}</a></p>
+        <p>GitHub Server URL: <a href={githubServerUrl} target="_blank" rel="noopener noreferrer">{githubServerUrl}</a></p>
+        <p>Server URL: <a href={serverUrl} target="_blank" rel="noopener noreferrer">{serverUrl}</a></p>
 
         <h1>Labs</h1>
         {/* 显示目录 */}
